@@ -1,42 +1,49 @@
-import { useEffect } from 'react'
 import logo from './logo.svg';
 import './App.css';
+import * as EgovNet from './util/util'
 
 function App() {
 
   const signup = () => {
-    fetch("http://localhost:8080/signup", {
-      method: "POST",
-      headers: {
-        'Content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        id: 1, email: "email@email.com", password: "pass"
-      }),
-    })
-    .then(resp => resp.json())
-    .then(resp => console.log(resp))
-    .catch(e => console.error(e))
-    .finally(() => console.log("finally"));
+      const retrieveDetailURL = '/signup';
+      const requestOptions = {
+          method: "POST",
+          headers: {
+              'Content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: "email13@email.com", password: "pass"
+          })
+      };
+
+      EgovNet.requestFetch(retrieveDetailURL,
+          requestOptions,
+          function (resp) {
+              console.log(resp);
+          }
+      );
   }
 
   const login = () => {
-    fetch("http://localhost:8080/login", {
-      method: "POST",
-      headers: {
-        'Content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        id: 1, email: "email@email.com"
-      }),
-    })
-    .then(resp => resp.json())
-    .then(resp => {
-      sessionStorage.setItem("token", resp.token);
-      sessionStorage.setItem("refreshToken", resp.refreshToken);
-    })
-    .catch(e => console.error(e))
-    .finally(() => console.log("finally"));
+      const retrieveDetailURL = '/login';
+      const requestOptions = {
+          method: "POST",
+          headers: {
+              'Content-type': 'application/json',
+          },
+          body: JSON.stringify({
+              id: 1, email: "email@email.com"
+          })
+      };
+
+      EgovNet.requestFetch(retrieveDetailURL,
+          requestOptions,
+          function (resp) {
+              sessionStorage.setItem("token", resp.token);
+              sessionStorage.setItem("refreshToken", resp.refreshToken);
+              alert("로그인 완료");
+          }
+      );
   }
 
   const logout = () => {
@@ -45,56 +52,38 @@ function App() {
   }
 
   const list = () => {
-    fetch("http://localhost:8080/list", {
-      method: "GET",
-      headers: {
-        'Content-type': 'application/json',
-        'Authorization': 'Bearer ' + sessionStorage.getItem("token"),
-      },
-    })
-    .then(resp => {
-      console.log(resp)
-      if (resp.status === 401) {
-        console.log("401 뜸")
-        fetch("http://localhost:8080/refreshToken", {
-          method: "POST",
+      const retrieveDetailURL = '/list';
+      const requestOptions = {
+          method: "GET",
           headers: {
-            'Content-type': 'application/json',
-          },
-          body: JSON.stringify({
-            token: sessionStorage.getItem("token"),
-            refreshToken: sessionStorage.getItem("refreshToken")
-          })
-        })
-        .then(resp => resp.json())
-        .then(resp => {
-          console.log(resp)
-          sessionStorage.setItem("token", resp.token);
-          fetch("http://localhost:8080/list", {
-            method: "GET",
-            headers: {
               'Content-type': 'application/json',
-              'Authorization': 'Bearer ' + sessionStorage.getItem("token"),
-            },
-          })
-          .then(resp => console.log(resp))
-          .catch(e => console.error(e))
-          .finally(() => console.log("finally"));
-        })
-        .catch(e => console.error(e))
-        .finally(() => console.log("refresh finally"));
-      } else {
-        return resp.json();
-      }
-    })
-    .then(resp => console.log(resp))
-    .catch(e => console.error(e))
-    .finally(() => console.log("finally"));
+          }
+      };
+
+      EgovNet.requestFetch(retrieveDetailURL,
+          requestOptions,
+          function (resp) {
+            console.log(resp);
+          }
+      );
   }
 
-  useEffect(() => {
+  const get = () => {
+    const retrieveDetailURL = '/get';
+    const requestOptions = {
+        method: "GET",
+        headers: {
+            'Content-type': 'application/json',
+        }
+    };
 
-  }, []);
+    EgovNet.requestFetch(retrieveDetailURL,
+        requestOptions,
+        function (resp) {
+          console.log(resp);
+        }
+    );
+}
 
   return (
     <div className="App">
@@ -115,6 +104,7 @@ function App() {
         <button onClick={login}>login</button>
         <button onClick={logout}>logout</button>
         <button onClick={list}>list</button>
+        <button onClick={get}>get</button>
       </header>
     </div>
   );
