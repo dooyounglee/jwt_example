@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -31,8 +32,15 @@ public class UserService {
 		userRepository.save(user);
 	}
 	
-	public Map<String, Object> login(User user) {
+	public Map<String, Object> login(User user) throws Exception {
 		log.debug("login");
+		
+		log.debug("user: {}", userRepository.findByEmail(user.getEmail())
+			.orElseThrow(() -> new Exception("없어요")));
+		
+		// userId가 이미 refrshtoken을 가지고 있다면 지우고.(다시 생성)
+		Optional<RefreshToken> oRefreshToken = refreshTokenRepository.findByUserId(user.getId());
+		oRefreshToken.ifPresent(refreshTokenRepository::delete);
 		
 		String token = tokenProvider.generateToken(user, Duration.ofSeconds(5));
 		String refreshToken = tokenProvider.generateToken(user, Duration.ofDays(1));
